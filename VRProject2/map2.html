@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
+    <script src="script.js"></script>
+    <script src="enemy.js"></script>
+    <script src="weapons/stick.js"></script>
+  </head>
+
+
+  <body>
+    <a-scene>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="40" height="40" color="black"></a-plane>
+      <a-sky src="space.jpg"></a-sky>
+        <a-camera active id="mainCamera"  fov="80" look-controls="pointerLockEnabled: true" wasd-controls="acceleration:100" position="0 5 2"> 
+          <a-cursor>
+              <a-text id="output" position="-1 2 -2"></a-text>
+              <a-text value="lorem" position="-3.3 0.5 -1" color="black"></a-text>
+              <a-entity id="hand">
+                <a-cylinder position="3.5 -2 -2" rotation="90 0 -10" radius="0.5" height="2"></a-cylinder>
+                <a-sphere position="3.25 -2 -3.5" radius=".88"></a-sphere>
+              </a-entity>
+              <a-entity>
+                <a-cylinder color="black" position="3 0 -4" height="5" radius=".5"></a-cylinder>
+              </a-entity>
+          </a-cursor> 
+        </a-camera>
+
+        <a-entity id="gun">
+          <a-box position="0 4 0" depth="2" height=".25" width=".25"></a-box>
+          <a-box position="0 3.75 .75" depth=".25" height="1" width=".25"></a-box>
+        </a-entity>
+
+        
+
+    </a-scene>
+  </body>
+</html>

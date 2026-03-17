@@ -1,0 +1,55 @@
+<html>
+<head>
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+<script src="enemy.js"></script>
+<script src="weapons/stick.js"></script>
+<script src="script.js"></script>
+<script src="scriptexp.js"></script>
+<script src="./wallexp1.js"></script>
+<script src="./wallexp2.js"></script>
+</head>
+
+<body>
+
+<a-scene>
+
+<a-assets>
+  <a-asset-item id="portal" src="portal_gate_sci-fi/scene.gltf"></a-asset-item>
+</a-assets>
+
+        <a-camera active id="mainCamera"  fov="80" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 200; fly:true" position="50 5 50"> 
+            <a-cursor>
+                <a-text id="output" position="-1 2 -2"></a-text>
+                <a-text value="health: " position="-3.3 0.5 -1" color="black"></a-text>
+                <a-text value="boost: " position="-3.3 0.5 -1" color="black"></a-text>
+                <a-entity id="hand">
+                    <a-cylinder position="3.5 -2 -2" rotation="90 0 -10" radius="0.5" height="2"></a-cylinder>
+                    <a-sphere position="3.25 -2 -3.5" radius=".88"></a-sphere>
+                </a-entity>
+                <a-entity>
+                    <a-cylinder color="black" position="3 0 -4" height="5" radius=".5"></a-cylinder>
+                </a-entity>
+            </a-cursor> 
+        </a-camera>
+
+<a-gltf-model 
+  id="portalModel"
+  src="#portal"
+  position="15 25 -250"
+  rotation="0 180 0"
+  scale="10 10 10">
+</a-gltf-model>
+
+<a-entity environment="preset: goldmine;" scale="7 4 7"></a-entity>
+
+<a-box id="button" class="clickable" color="red" position="0 20 -118"></a-box>
+
+<a-plane position="0 -5 0" rotation="-90 0 0" width="1000" height="1000" color="black"></a-plane>
+
+<a-sky color="#ECECEC"></a-sky>
+
+</a-scene>
+
+</body>
+</html>
