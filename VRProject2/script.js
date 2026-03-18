@@ -1,7 +1,7 @@
 let rnd = (l,u) => Math.random() * (u-l) + l;
 
 let scene, weapon, camera, portal;
-let weaponDamage = 50;
+let weaponDamage = 150;
 
 let playerHealth = 100;
 let maxHealth = 100;
