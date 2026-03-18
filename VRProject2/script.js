@@ -49,7 +49,6 @@ window.addEventListener("DOMContentLoaded", function(){
 
       console.log("Scene loaded");
 
-      // detect cave map AFTER scene loads
       if (window.location.href.includes("caveexp")) {
           caveMode = true;
 
@@ -59,7 +58,6 @@ window.addEventListener("DOMContentLoaded", function(){
           startTimer();
       }
 
-      // spawn enemies
       for(let i = 0; i < 20; i++){
 
         let spawn = getValidSpawn();
@@ -79,10 +77,8 @@ window.addEventListener("DOMContentLoaded", function(){
         updateKillCounter();
       }
 
-      // portal check
       setInterval(checkPortalDistance,200);
 
-      // controls
       window.addEventListener("keydown",function(e){
 
         if(e.key.toLowerCase()=="shift" && boost > boostStartThreshold){
@@ -157,7 +153,6 @@ function loop(){
     camera.setAttribute("wasd-controls", { acceleration: 500 });
     camera.setAttribute("zoom", ".75");
 
-    // stop only when empty
     if (boost <= boostStopThreshold) {
       boosting = false;
     }
@@ -167,13 +162,11 @@ function loop(){
     camera.setAttribute("wasd-controls", { acceleration: 100 });
     camera.setAttribute("zoom", "1");
 
-    // regen
     if (boost < maxBoost) {
       boost += 0.3;
     }
   }
 
-  // clamp values
   boost = Math.max(0, Math.min(maxBoost, boost));
 
   window.requestAnimationFrame(loop);
@@ -222,10 +215,8 @@ function gameOver() {
 
     isGameOver = true;
 
-    // Show black screen
     document.getElementById("gameOverScreen").style.display = "flex";
 
-    // Disable movement
     if (camera) {
         camera.setAttribute("wasd-controls", "enabled: false");
     }

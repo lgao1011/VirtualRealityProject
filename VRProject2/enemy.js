@@ -12,7 +12,6 @@ class basicEnemy {
         this.isDying = false;
         this.deathTimer = 0;
 
-        // movement
         this.velocityX = 0;
         this.velocityZ = 0;
         this.friction = 0.9;
@@ -25,11 +24,9 @@ class basicEnemy {
 
         this.respawnTime = 30000; 
 
-        // separation (NEW)
         this.separationRange = 5;
         this.separationForce = 0.1;
 
-        // combat state
         this.isAttacking = false;
         this.canBeParried = false;
         this.attackCooldown = 0;
@@ -71,7 +68,6 @@ class basicEnemy {
         rightArm.setAttribute("position", "1 1.3 0");
         this.obj.append(rightArm);
 
-                // LEFT WING
         let leftWing = document.createElement("a-plane");
         leftWing.setAttribute("width", "2");
         leftWing.setAttribute("height", "1");
@@ -80,7 +76,6 @@ class basicEnemy {
         leftWing.setAttribute("rotation", "0 0 30");
         this.obj.append(leftWing);
 
-        // RIGHT WING
         let rightWing = document.createElement("a-plane");
         rightWing.setAttribute("width", "2");
         rightWing.setAttribute("height", "1");
@@ -134,7 +129,7 @@ class basicEnemy {
         if (this.isDead) return;
 
         this.handleMovement();
-        this.separate(); // NEW
+        this.separate();
 
         let pos = this.obj.object3D.position;
 
@@ -193,7 +188,6 @@ class basicEnemy {
         }
     }
 
-    // SEPARATION SYSTEM (NEW)
     separate() {
 
         let pos = this.obj.object3D.position;
@@ -309,14 +303,12 @@ class basicEnemy {
 
     respawn() {
 
-        // Reset stats
         this.enemyHealth = this.maxHealth;
         this.isDead = false;
         this.isDying = false;
         this.hasEnded = false;
         this.attackCooldown = 0;
 
-        // Reset visuals
         this.obj.setAttribute("visible", "true");
         this.body.setAttribute("color", "#aa0000");
         this.body.setAttribute("material", "opacity:1; transparent:true");
@@ -324,7 +316,7 @@ class basicEnemy {
         this.healthBar.setAttribute("visible", "true");
         this.updateHealthBar();
 
-        // Reset position slightly (optional but recommended)
+
         this.velocityX = 0;
         this.velocityZ = 0;
     }
@@ -337,7 +329,6 @@ class basicEnemy {
 
         setTimeout(() => {
 
-            // 💥 DAMAGE PLAYER IF CLOSE
             if (distance(camera, this.obj) < 5) {
                 damagePlayer(10);
             }
@@ -373,8 +364,7 @@ class basicEnemy {
         if (this.isDead && !this.hasEnded) {
 
             this.hasEnded = true;
-
-            // 👇 ONLY count in cave
+            
             if (caveMode) {
                 enemiesKilled++;
                 updateKillCounter();
