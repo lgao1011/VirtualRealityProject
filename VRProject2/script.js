@@ -3,118 +3,271 @@ let rnd = (l,u) => Math.random() * (u-l) + l;
 let scene, weapon, camera, portal;
 let weaponDamage = 50;
 
+let playerHealth = 100;
+let maxHealth = 100;
+
+let boost = 100;
+let maxBoost = 100;
+
+let boosting = false;
+
+let boostStartThreshold = 10;
+let boostStopThreshold = 0;
+
 let basicEs = [];
 
+let isGameOver = false;
+
+let spawnZones = [
+  { minX: 165, maxX: 175, minZ: -126, maxZ: -116 },
+  { minX: 20, maxX: 50, minZ: -190, maxZ: -210 },
+  { minX: 115, maxX: 141, minZ: -15, maxZ: -22 },
+  { minX: 10, maxX: 40, minZ: 10, maxZ: 40 }
+];
+
+let enemiesKilled = 0;
+let totalEnemies = 10;
+let killText;
+
+let caveMode = false;
+
+let timer = 0;
+let timerText;
 
 window.addEventListener("DOMContentLoaded", function(){
 
   scene = document.querySelector("a-scene");
 
-    if(scene){
+  killText = document.getElementById("killCounter");
 
-        // wait for A-Frame to finish loading
-            scene.addEventListener("loaded", function(){
+  if(scene){
 
-                  camera = document.getElementById("mainCamera");
-                        portal = document.querySelector("#portalModel");
+    scene.addEventListener("loaded", function(){
 
-                              console.log("Scene loaded");
+      camera = document.getElementById("mainCamera");
+      portal = document.querySelector("#portalModel");
 
-                                    // spawn enemies
-                                          for(let i = 0; i < 10; i++){
-                                                  let x = rnd(-10,10);
-                                                          let z = rnd(-10,10);
+      console.log("Scene loaded");
 
-                                                                  let enemy = new basicEnemy(x,2,z,150);
-                                                                          basicEs.push(enemy);
-                                                                                }
+      // detect cave map AFTER scene loads
+      if (window.location.href.includes("caveexp")) {
+          caveMode = true;
 
-                                                                                      // portal check
-                                                                                            setInterval(checkPortalDistance,200);
+          killText = document.getElementById("killCounter");
+          timerText = document.getElementById("timerText");
 
-                                                                                                  // movement controls
-                                                                                                        window.addEventListener("keydown",function(e){
+          startTimer();
+      }
 
-                                                                                                                if(e.key.toLowerCase()=="shift"){
-                                                                                                                          camera.setAttribute("wasd-controls",{acceleration:500});
-                                                                                                                                    camera.setAttribute("zoom",".75");
-                                                                                                                                            }
+      // spawn enemies
+      for(let i = 0; i < 20; i++){
 
-                                                                                                                                                    if(e.key.toLowerCase()=="v"){
-                                                                                                                                                              camera.setAttribute("zoom","5");
-                                                                                                                                                                      }
+        let spawn = getValidSpawn();
 
-                                                                                                                                                                            });
+        let enemy = new basicEnemy(spawn.x, 20, spawn.z, 150);
+        basicEs.push(enemy);
+      }
 
-                                                                                                                                                                                  window.addEventListener("keyup",function(e){
+      for(let i = 0; i < 50; i++){
+        let x = rnd(-100, 100);
+        let z = rnd(-100, 100);
+        let enemy = new basicEnemy(x, 20, z, 150);
+        basicEs.push(enemy);
+      }
 
-                                                                                                                                                                                          if(e.key.toLowerCase()=="shift"){
-                                                                                                                                                                                                    camera.setAttribute("wasd-controls",{acceleration:100});
-                                                                                                                                                                                                              camera.setAttribute("zoom","1");
-                                                                                                                                                                                                                      }
+      if (caveMode) {
+        updateKillCounter();
+      }
 
-                                                                                                                                                                                                                              if(e.key.toLowerCase()=="v"){
-                                                                                                                                                                                                                                        camera.setAttribute("zoom","1");
-                                                                                                                                                                                                                                                }
+      // portal check
+      setInterval(checkPortalDistance,200);
 
-                                                                                                                                                                                                                                                      });
+      // controls
+      window.addEventListener("keydown",function(e){
 
-                                                                                                                                                                                                                                                            loop();
+        if(e.key.toLowerCase()=="shift" && boost > boostStartThreshold){
+          boosting = true;
+        }
 
-                                                                                                                                                                                                                                                                });
+        if(e.key.toLowerCase()=="v"){
+          camera.setAttribute("zoom","5");
+        }
 
-                                                                                                                                                                                                                                                                  }
+      });
 
-                                                                                                                                                                                                                                                                  });
+      window.addEventListener("keyup",function(e){
+
+        if(e.key.toLowerCase()=="shift"){
+          boosting = false;
+        }
+
+        if(e.key.toLowerCase()=="v"){
+          camera.setAttribute("zoom","1");
+        }
+
+      });
+
+      window.addEventListener("keydown", function(e){
+
+        if(e.key.toLowerCase() === "p") {
+
+          let pos = camera.object3D.position;
+
+          console.log("PLAYER POSITION:");
+          console.log(`X: ${pos.x}`);
+          console.log(`Y: ${pos.y}`);
+          console.log(`Z: ${pos.z}`);
+        }
+
+      });
+
+      loop();
+
+    });
+
+  }
+
+});
 
 
-                                                                                                                                                                                                                                                                  function loop(){
+function loop(){
 
-                                                                                                                                                                                                                                                                    for(let enemy of basicEs){
-                                                                                                                                                                                                                                                                        enemy.update();
-                                                                                                                                                                                                                                                                            enemy.ended();
-                                                                                                                                                                                                                                                                              }
+  if (playerHealth <= 0) {
+    gameOver();
+  }
 
-                                                                                                                                                                                                                                                                                window.requestAnimationFrame(loop);
+  let output = document.getElementById("output");
 
-                                                                                                                                                                                                                                                                                }
+  if (output) {
+    output.setAttribute(
+      "value",
+      `HP: ${Math.floor(playerHealth)}%\nBOOST: ${Math.floor(boost)}%`
+    );
+  }
+
+  for(let enemy of basicEs){
+    enemy.update();
+    enemy.ended();
+  }
+
+  if (boosting) {
+
+    boost -= 0.5;
+
+    camera.setAttribute("wasd-controls", { acceleration: 500 });
+    camera.setAttribute("zoom", ".75");
+
+    // stop only when empty
+    if (boost <= boostStopThreshold) {
+      boosting = false;
+    }
+
+  } else {
+
+    camera.setAttribute("wasd-controls", { acceleration: 100 });
+    camera.setAttribute("zoom", "1");
+
+    // regen
+    if (boost < maxBoost) {
+      boost += 0.3;
+    }
+  }
+
+  // clamp values
+  boost = Math.max(0, Math.min(maxBoost, boost));
+
+  window.requestAnimationFrame(loop);
+}
 
 
-                                                                                                                                                                                                                                                                                function checkPortalDistance(){
+function checkPortalDistance(){
 
-                                                                                                                                                                                                                                                                                  if(!camera || !portal) return;
+  if(!camera || !portal) return;
 
-                                                                                                                                                                                                                                                                                    const camPos = new THREE.Vector3();
-                                                                                                                                                                                                                                                                                      const portalPos = new THREE.Vector3();
+  const camPos = new THREE.Vector3();
+  const portalPos = new THREE.Vector3();
 
-                                                                                                                                                                                                                                                                                        camera.object3D.getWorldPosition(camPos);
-                                                                                                                                                                                                                                                                                          portal.object3D.getWorldPosition(portalPos);
+  camera.object3D.getWorldPosition(camPos);
+  portal.object3D.getWorldPosition(portalPos);
 
-                                                                                                                                                                                                                                                                                            const dist = camPos.distanceTo(portalPos);
+  const dist = camPos.distanceTo(portalPos);
 
-                                                                                                                                                                                                                                                                                              if(dist <= 50){
-                                                                                                                                                                                                                                                                                                  console.log("Entering cave map");
-                                                                                                                                                                                                                                                                                                      window.location.href = "caveexp.html";
-                                                                                                                                                                                                                                                                                                        }
+  if(dist <= 50){
+    console.log("Entering cave map");
+    window.location.href = "caveexp.html";
+  }
 
-                                                                                                                                                                                                                                                                                                        }
+}
+
+function updateKillCounter() {
+    if (!killText) return;
+
+    killText.setAttribute("value", `Kills: ${enemiesKilled}`);
+}
 
 
+function getValidSpawn() {
 
-                                                                                                                                                                                                                                                                                                        function distance(obj1,obj2){
+  let zone = spawnZones[Math.floor(Math.random() * spawnZones.length)];
 
-                                                                                                                                                                                                                                                                                                          let x1 = obj1.object3D.position.x;
-                                                                                                                                                                                                                                                                                                            let y1 = obj1.object3D.position.y;
-                                                                                                                                                                                                                                                                                                              let z1 = obj1.object3D.position.z;
+  let x = rnd(zone.minX, zone.maxX);
+  let z = rnd(zone.minZ, zone.maxZ);
 
-                                                                                                                                                                                                                                                                                                                let x2 = obj2.object3D.position.x;
-                                                                                                                                                                                                                                                                                                                  let y2 = obj2.object3D.position.y;
-                                                                                                                                                                                                                                                                                                                    let z2 = obj2.object3D.position.z;
+  return { x, z };
+}
 
-                                                                                                                                                                                                                                                                                                                      return Math.sqrt(
-                                                                                                                                                                                                                                                                                                                          Math.pow(x1-x2,2) +
-                                                                                                                                                                                                                                                                                                                              Math.pow(y1-y2,2) +
-                                                                                                                                                                                                                                                                                                                                  Math.pow(z1-z2,2)
-                                                                                                                                                                                                                                                                                                                                    );
+function gameOver() {
 
-                                                                                                                                                                                                                                                                                                                                    }
+    if (isGameOver) return;
+
+    isGameOver = true;
+
+    // Show black screen
+    document.getElementById("gameOverScreen").style.display = "flex";
+
+    // Disable movement
+    if (camera) {
+        camera.setAttribute("wasd-controls", "enabled: false");
+    }
+
+    console.log("GAME OVER");
+}
+
+function damagePlayer(amount) {
+  playerHealth -= amount;
+
+  if (playerHealth < 0) playerHealth = 0;
+
+  console.log("Player HP:", playerHealth);
+}
+
+function startTimer() {
+
+    setInterval(() => {
+
+        timer++;
+
+        if (timerText) {
+            timerText.setAttribute("value", `Time: ${timer}`);
+        }
+
+    }, 1000);
+}
+
+function distance(obj1,obj2){
+
+  let x1 = obj1.object3D.position.x;
+  let y1 = obj1.object3D.position.y;
+  let z1 = obj1.object3D.position.z;
+
+  let x2 = obj2.object3D.position.x;
+  let y2 = obj2.object3D.position.y;
+  let z2 = obj2.object3D.position.z;
+
+  return Math.sqrt(
+    Math.pow(x1-x2,2) +
+    Math.pow(y1-y2,2) +
+    Math.pow(z1-z2,2)
+  );
+
+}

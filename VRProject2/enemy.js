@@ -16,16 +16,18 @@ class basicEnemy {
         this.velocityX = 0;
         this.velocityZ = 0;
         this.friction = 0.9;
-        this.speed = 0.02;
-        this.bounds = 20;
+        this.speed = 0.08;
+        this.bounds = 500;
 
         this.aggroRange = 25;
         this.stopRange = 3;
-        this.flySpeed = 0.05;
+        this.flySpeed = 0.067;
+
+        this.respawnTime = 30000; 
 
         // separation (NEW)
-        this.separationRange = 3;
-        this.separationForce = 0.03;
+        this.separationRange = 5;
+        this.separationForce = 0.1;
 
         // combat state
         this.isAttacking = false;
@@ -69,6 +71,24 @@ class basicEnemy {
         rightArm.setAttribute("position", "1 1.3 0");
         this.obj.append(rightArm);
 
+                // LEFT WING
+        let leftWing = document.createElement("a-plane");
+        leftWing.setAttribute("width", "2");
+        leftWing.setAttribute("height", "1");
+        leftWing.setAttribute("color", "#550000");
+        leftWing.setAttribute("position", "-1.5 1.5 0");
+        leftWing.setAttribute("rotation", "0 0 30");
+        this.obj.append(leftWing);
+
+        // RIGHT WING
+        let rightWing = document.createElement("a-plane");
+        rightWing.setAttribute("width", "2");
+        rightWing.setAttribute("height", "1");
+        rightWing.setAttribute("color", "#550000");
+        rightWing.setAttribute("position", "1.5 1.5 0");
+        rightWing.setAttribute("rotation", "0 0 -30");
+        this.obj.append(rightWing);
+
         let leftLeg = document.createElement("a-box");
         leftLeg.setAttribute("height", "1.5");
         leftLeg.setAttribute("width", "0.5");
@@ -94,7 +114,7 @@ class basicEnemy {
 
         this.obj.addEventListener("click", () => {
             if (this.isDead) return;
-            if (distance(camera, this.obj) < 5) {
+            if (distance(camera, this.obj) < 15) {
                 this.takeDamage(weaponDamage);
             }
         });
@@ -279,6 +299,34 @@ class basicEnemy {
         this.body.setAttribute("material", "transparent:true");
 
         this.deathTimer = 40;
+
+        setTimeout(() => {
+            this.respawn();
+        }, this.respawnTime);
+
+
+    }
+
+    respawn() {
+
+        // Reset stats
+        this.enemyHealth = this.maxHealth;
+        this.isDead = false;
+        this.isDying = false;
+        this.hasEnded = false;
+        this.attackCooldown = 0;
+
+        // Reset visuals
+        this.obj.setAttribute("visible", "true");
+        this.body.setAttribute("color", "#aa0000");
+        this.body.setAttribute("material", "opacity:1; transparent:true");
+
+        this.healthBar.setAttribute("visible", "true");
+        this.updateHealthBar();
+
+        // Reset position slightly (optional but recommended)
+        this.velocityX = 0;
+        this.velocityZ = 0;
     }
 
     attack() {
@@ -288,6 +336,12 @@ class basicEnemy {
         this.body.setAttribute("color", "yellow");
 
         setTimeout(() => {
+
+            // 💥 DAMAGE PLAYER IF CLOSE
+            if (distance(camera, this.obj) < 5) {
+                damagePlayer(10);
+            }
+
             this.canBeParried = false;
             this.isAttacking = false;
 
@@ -300,7 +354,7 @@ class basicEnemy {
     attemptParry() {
         console.log("PARRY SUCCESS!");
 
-        this.applyKnockback(2);
+        this.applyKnockback(3);
 
         this.body.setAttribute("color", "blue");
 
@@ -317,7 +371,14 @@ class basicEnemy {
 
     ended() {
         if (this.isDead && !this.hasEnded) {
+
             this.hasEnded = true;
+
+            // 👇 ONLY count in cave
+            if (caveMode) {
+                enemiesKilled++;
+                updateKillCounter();
+            }
 
             this.obj.setAttribute("visible", "false");
             this.healthBar.setAttribute("visible", "false");

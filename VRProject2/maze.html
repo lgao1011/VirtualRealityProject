@@ -18,10 +18,17 @@
 
       </a-assets> 
       
-        <a-camera active id="mainCamera"  fov="80" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 200; fly:true" position="300 5 -80"> 
+        <a-camera active id="mainCamera"  fov="80" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 200; fly:true" position="300 15 -80"> 
             <a-cursor>
-                <a-text id="output" position="-1 2 -2"></a-text>
-                <a-text value="lorem" position="-3.3 0.5 -1" color="black"></a-text>
+                <a-text id="output" position="-4 0 -2"></a-text>
+                <a-text value="Find the Portal" position="1 1.5 -1"></a-text>
+                <a-text 
+                  id="killCounter"
+                  value="Enemies killed: 0/10"
+                  position="-4 2 -3"
+                  color="white"
+                  width="6">
+                </a-text>
                 <a-entity id="hand">
                     <a-cylinder position="3.5 -2 -2" rotation="90 0 -10" radius="0.5" height="2"></a-cylinder>
                     <a-sphere position="3.25 -2 -3.5" radius=".88"></a-sphere>
@@ -599,5 +606,27 @@
       <a-plane position="0 -5 0" rotation="-90 0 0" width="1000" height="1000" color="#7BC8A4" src="#grass2"></a-plane>
       <a-sky color="#ECECEC"></a-sky>
     </a-scene>
+
+    <div id="gameOverScreen" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 60px;
+      z-index: 9999;
+      ">
+      GAME OVER
+      <div style="font-size:22px; margin-top:20px;">
+        Press Ctrl + R to restart
+      </div>
+    </div>
+
   </body>
 </html>
