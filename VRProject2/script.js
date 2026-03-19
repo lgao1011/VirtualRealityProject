@@ -1,7 +1,7 @@
 let rnd = (l,u) => Math.random() * (u-l) + l;
 
 let scene, weapon, camera, portal;
-let weaponDamage = 150;
+let weaponDamage = 50;
 
 let playerHealth = 100;
 let maxHealth = 100;
@@ -148,7 +148,7 @@ function loop(){
 
   if (boosting) {
 
-    boost -= 0.5;
+    boost -= .5;
 
     camera.setAttribute("wasd-controls", { acceleration: 500 });
     camera.setAttribute("zoom", ".75");
@@ -159,7 +159,7 @@ function loop(){
 
   } else {
 
-    camera.setAttribute("wasd-controls", { acceleration: 100 });
+    camera.setAttribute("wasd-controls", { acceleration: 200 });
     camera.setAttribute("zoom", "1");
 
     if (boost < maxBoost) {
@@ -195,7 +195,11 @@ function checkPortalDistance(){
 function updateKillCounter() {
     if (!killText) return;
 
-    killText.setAttribute("value", `Kills: ${enemiesKilled}`);
+    if (caveMode) {
+        killText.setAttribute("value", `Enemies Killed: ${enemiesKilled}`);
+    } else {
+        killText.setAttribute("value", `Enemies Killed: ${enemiesKilled}/${totalEnemies}`);
+    }
 }
 
 

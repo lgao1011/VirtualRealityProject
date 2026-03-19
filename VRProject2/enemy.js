@@ -365,10 +365,8 @@ class basicEnemy {
 
             this.hasEnded = true;
             
-            if (caveMode) {
-                enemiesKilled++;
-                updateKillCounter();
-            }
+            enemiesKilled++;
+            updateKillCounter();
 
             this.obj.setAttribute("visible", "false");
             this.healthBar.setAttribute("visible", "false");
