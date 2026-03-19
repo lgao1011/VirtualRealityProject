@@ -148,7 +148,7 @@ function loop(){
 
   if (boosting) {
 
-    boost -= .5;
+    boost -= 1.5;
 
     camera.setAttribute("wasd-controls", { acceleration: 500 });
     camera.setAttribute("zoom", ".75");
